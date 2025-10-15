@@ -1,9 +1,16 @@
+# path: render.yaml
 services:
-  - type: static
+  - type: web
     name: snhu-map
+    runtime: static
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
-    pullRequestPreviewsEnabled: true
+
+    # modern replacement for pullRequestPreviewsEnabled: true
+    previews:
+      generation: automatic
+
+    # helps the builder pick the right Node
     envVars:
       - key: NODE_VERSION
         value: "18"
