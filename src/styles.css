@@ -1,0 +1,214 @@
+/* CSS variables for layout and spacing */
+:root {
+    /* Layout and spacing tokens for easy theming */
+    --panel-width: 360px;
+    --gap: 12px;
+    --shadow: 0 10px 20px rgba(0, 0, 0, 0.12), 0 6px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Global box-sizing to make sizing predictable */
+* {
+    box-sizing: border-box;
+}
+
+/* Ensures the app fills the viewport and remove default margin */
+html,
+body,
+#root {
+    height: 100%;
+    margin: 0;
+}
+
+/* System font stack for cross-platform rendering */
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+        sans-serif;
+}
+
+/* Top-level app grid layout:
+    - left panel (sidebar) and main map area
+     - header spans full width */
+.app {
+    display: grid;
+    grid-template-columns: var(--panel-width) 1fr;
+    grid-template-rows: 56px 1fr;
+    grid-template-areas:
+        "header header"
+        "panel  map";
+    height: 100%;
+}
+
+/* Mobile / narrow screens: stack the layout vertically */
+@media (max-width: 900px) {
+    .app {
+        grid-template-columns: 1fr;
+        grid-template-rows: 56px auto 1fr;
+        grid-template-areas:
+            "header"
+            "panel"
+            "map";
+    }
+}
+
+/* Header area: sticky top bar with simple separators */
+header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    border-bottom: 1px solid #e7e7e7;
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Brand/title styling */
+.brand {
+    font-weight: 700;
+}
+
+/* Controls container */
+.controls {
+    display: flex;
+    gap: var(--gap);
+    flex-wrap: wrap;
+}
+
+/* Shared button styles for <button> and elements with .button */
+button,
+.button {
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 10px;
+    padding: 8px 12px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+}
+
+/* Disabled buttons appear inactive and not clickable */
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Sidebar / panel area */
+.panel {
+    grid-area: panel;
+    overflow: auto;
+    padding: var(--gap);
+    background: #fafafa;
+    border-right: 1px solid #eee;
+}
+
+/* Reset default margin for headings inside the panel */
+.panel h2 {
+    margin-top: 0;
+}
+
+/* Map wrapper that contains the map canvas */
+.map-wrap {
+    grid-area: map;
+    position: relative;
+}
+
+/* Leaflet canvas should fill the wrap */
+.leaflet-container {
+    position: absolute;
+    inset: 0;
+}
+
+/* Generic list container with vertical gap */
+.list {
+    display: grid;
+    gap: 8px;
+}
+
+/* Individual list item/card */
+.item {
+    display: grid;
+    gap: 4px;
+    padding: 10px;
+    border: 1px solid #eaeaea;
+    border-radius: 10px;
+    background: #fff;
+}
+
+/* Container for item-level actions (buttons, links) */
+.item-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Small, subtle label */
+.badge {
+    font-size: 12px;
+    color: #555;
+}
+
+/* Generic horizontal row helper */
+.row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Form controls:
+    - targets elements with class "input" and all <textarea> elements.
+*/
+.input,
+textarea {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px;
+    background: #fff;
+}
+
+/* Modal backdrop to dim the page and center the modal */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    display: grid;
+    place-items: center;
+    z-index: 1000;
+}
+
+/* Modal dialog styling */
+.modal {
+    width: min(560px, 94vw);
+    background: #fff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    display: grid;
+    gap: 10px;
+}
+
+/* Error/alert message style */
+.alert {
+    padding: 8px 10px;
+    border: 1px solid #ffd7d7;
+    background: #fff2f2;
+    color: #841b1b;
+    border-radius: 8px;
+}
+
+/* Success message style */
+.success {
+    border: 1px solid #d7ffe1;
+    background: #f2fff6;
+    color: #1b8451;
+}
+
+/* Footer actions inside modals or panels */
+.footer {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
