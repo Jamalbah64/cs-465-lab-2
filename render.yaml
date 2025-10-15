@@ -13,4 +13,4 @@ services:
     # helps the builder pick the right Node
     envVars:
       - key: NODE_VERSION
-        value: "18"
+        value: "22"
