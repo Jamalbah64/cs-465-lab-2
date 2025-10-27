@@ -1,8 +1,8 @@
-// path: snhu-map/src/App.jsx
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
 
 
 // Leaflet attempts to load marker assets from its own relative paths which often aren't
@@ -33,6 +33,7 @@ function validateLocationsJson(value) {
   if (!ok) return [false, "Each item must include id (string), lat (number), lng (number)."];
   return [true, /** @type {Location[]} */ (value)];
 }
+
 /**
  * Trigger a browser download of the provided value serialized as JSON.
  * - filename: suggested filename
@@ -94,6 +95,18 @@ function CenterMap({ lat, lng }) {
   return null;
 }
 
+// Listen for map clicks and report lat/lng up to App.
+function ClickToAdd({ mode, onClickLatLng }) {
+  useMapEvents({
+    click(e) {
+      if (mode !== "collecting") return;
+      const { lat, lng } = e.latlng;
+      onClickLatLng({ lat, lng });
+    }
+  });
+  return null;
+}
+
 // Root app component: manages locations and UI state and renders map + panels
 export default function App() {
   const [locations, setLocations] = useLocalStorageState("snhu.locations", /** @type {Location[]} */([]));
@@ -116,15 +129,6 @@ export default function App() {
     if (map) map.flyTo([lat, lng], Math.max(map.getZoom(), zoom), { animate: true, duration: 0.6 });
   }, []);
 
-  const onMapClick = useCallback((e) => {
-    if (mode !== "collecting") {
-      console.warn("Ignored click because mode is 'done'. Use 'Start Collecting' to resume.");
-      return;
-    }
-    const { lat, lng } = e.latlng;
-    setPendingClick({ lat, lng });
-  }, [mode]);
-
   const onAdd = useCallback(async (payload) => {
     const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
     /** @type {Location} */
@@ -135,7 +139,7 @@ export default function App() {
         const extra = await reverseGeocode(payload.lat, payload.lng);
         loc = { ...loc, extra };
       } catch {
-        //ignore
+        // ignore: free API rate limits/offline
       } finally {
         setGeocodeBusy(false);
       }
@@ -153,7 +157,7 @@ export default function App() {
         const extra = await reverseGeocode(payload.lat, payload.lng);
         next.extra = extra;
       } catch {
-        //ignore
+        // ignore
       } finally {
         setGeocodeBusy(false);
       }
@@ -257,12 +261,18 @@ export default function App() {
           maxZoom={19}
           style={{ height: "100%", width: "100%" }}
           whenCreated={(m) => (mapRef.current = m)}
-          onClick={onMapClick}
         >
           <TileLayer
             attribution="&copy; OpenStreetMap contributors"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+
+          {/* Listen for clicks and open the Add modal in collecting mode */}
+          <ClickToAdd
+            mode={mode}
+            onClickLatLng={({ lat, lng }) => setPendingClick({ lat, lng })}
+          />
+
           {focus && <CenterMap lat={focus.lat} lng={focus.lng} />}
 
           {bounds && mode === "done" && <FitToBounds bounds={bounds} />}
