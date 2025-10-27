@@ -5,7 +5,6 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 
-// Fix Leaflet marker icon loading in bundlers (Vite, CRA, etc.).
 // Leaflet attempts to load marker assets from its own relative paths which often aren't
 // available when bundlers rewrite/move files. Remove the default getter and provide
 // explicit CDN URLs so markers render correctly in dev and production builds.
@@ -34,7 +33,6 @@ function validateLocationsJson(value) {
   if (!ok) return [false, "Each item must include id (string), lat (number), lng (number)."];
   return [true, /** @type {Location[]} */ (value)];
 }
-
 /**
  * Trigger a browser download of the provided value serialized as JSON.
  * - filename: suggested filename
@@ -52,9 +50,7 @@ function downloadJson(filename, data) {
   URL.revokeObjectURL(url);
 }
 
-async function reverseGeocode(lat, lng) { 
-  //self-note: reverse geocoding is converting coordinates to human-readable addresses
-
+async function reverseGeocode(lat, lng) {
   /**
    * Reverse-geocode lat/lng using OpenStreetMap Nominatim.
    * Inputs: lat (number), lng (number)
@@ -75,8 +71,6 @@ async function reverseGeocode(lat, lng) {
 }
 
 function useLocalStorageState(key, initial) {
-  // Hook for state that is persisted to localStorage.
-
   /**
    * Hook that behaves like useState but persists to localStorage.
    * - key: localStorage key
@@ -109,7 +103,7 @@ export default function App() {
   const [editing, setEditing] = useState(null); // Location | null
   const [geocodeBusy, setGeocodeBusy] = useState(false);
   const [alert, setAlert] = useState(null);
-  const [focus, setFocus] = useState(null); // {lat,lng, ts?:number}
+  const [focus, setFocus] = useState(null); // {lat,lng}
   const mapRef = useRef();
 
   // Auto-show the list when returning to Collecting mode (helps students “find” the list again).
@@ -117,30 +111,17 @@ export default function App() {
     if (mode === "collecting") setShowList(true);
   }, [mode, setShowList]);
 
-  // If there are no locations, automatically switch to collecting (prevents stale 'done' in localStorage).
-  useEffect(() => {
-    if (locations.length === 0 && mode === "done") setMode("collecting");
-  }, [locations.length, mode, setMode]);
-
-  // Provide a reliable programmatic center: avoids “first center does nothing” when center ≈ same point.
   const centerOn = useCallback((lat, lng, zoom = 16) => {
     const map = mapRef.current;
-    if (map) {
-      map.flyTo([lat, lng], Math.max(map.getZoom(), zoom), { animate: true, duration: 0.6 });
-    } else {
-      // fallback: trigger CenterMap render
-      setFocus({ lat, lng, ts: Date.now() });
-    }
+    if (map) map.flyTo([lat, lng], Math.max(map.getZoom(), zoom), { animate: true, duration: 0.6 });
   }, []);
 
   const onMapClick = useCallback((e) => {
     if (mode !== "collecting") {
-      // clicks are ignored in Done mode by design; provide a helpful breadcrumb in DevTools
       console.warn("Ignored click because mode is 'done'. Use 'Start Collecting' to resume.");
       return;
     }
     const { lat, lng } = e.latlng;
-    // opens modal by setting a pending click
     setPendingClick({ lat, lng });
   }, [mode]);
 
@@ -154,7 +135,7 @@ export default function App() {
         const extra = await reverseGeocode(payload.lat, payload.lng);
         loc = { ...loc, extra };
       } catch {
-        // ignore: free API rate limits/offline
+        //ignore
       } finally {
         setGeocodeBusy(false);
       }
@@ -172,7 +153,7 @@ export default function App() {
         const extra = await reverseGeocode(payload.lat, payload.lng);
         next.extra = extra;
       } catch {
-        // ignore
+        //ignore
       } finally {
         setGeocodeBusy(false);
       }
@@ -209,18 +190,13 @@ export default function App() {
         </div>
         <div className="controls">
           <button onClick={() => setShowList((v) => !v)}>{showList ? "Hide List" : "Show List"}</button>
-
-          {/* Make Done a toggle: show Start Collecting when in done mode */}
           {mode === "done" ? (
             <button onClick={() => setMode("collecting")}>Start Collecting</button>
           ) : (
             <button onClick={() => setMode("done")} disabled={!hasData}>Done</button>
           )}
-
           <button onClick={onReset} disabled={!hasData}>Reset</button>
           <button onClick={() => downloadJson("locations.json", locations)} disabled={!hasData}>Save JSON</button>
-
-          {/* Load JSON: restore a saved set, or import snhu.sample.json for a demo */}
           <label className="button" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
             Load JSON
             <input
@@ -240,7 +216,7 @@ export default function App() {
                 } catch (err) {
                   setAlert({ kind: "error", msg: err instanceof Error ? err.message : "Failed to load file." });
                 } finally {
-                  e.currentTarget.value = "";       // allow re-uploading the same file
+                  e.currentTarget.value = "";
                 }
               }}
             />
@@ -262,9 +238,8 @@ export default function App() {
                 <div className="badge">{l.extra?.displayName || `${l.lat.toFixed(4)}, ${l.lng.toFixed(4)}`}</div>
                 {l.notes && <div>{l.notes}</div>}
                 <div className="item-actions">
-                  {/* Center now uses reliable flyTo() to ensure first center is noticeable */}
                   <button onClick={() => centerOn(l.lat, l.lng)}>Center</button>
-                  <button onClick={() => { setEditing(l); setFocus({ lat: l.lat, lng: l.lng, ts: Date.now() }); }}>Edit</button>
+                  <button onClick={() => { setEditing(l); setFocus({ lat: l.lat, lng: l.lng }); }}>Edit</button>
                   <button onClick={() => onDelete(l.id)}>Delete</button>
                 </div>
               </div>
@@ -288,8 +263,6 @@ export default function App() {
             attribution="&copy; OpenStreetMap contributors"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-
-          {/* Keep CenterMap as a passive recenter helper in case mapRef isn't ready */}
           {focus && <CenterMap lat={focus.lat} lng={focus.lng} />}
 
           {bounds && mode === "done" && <FitToBounds bounds={bounds} />}
@@ -311,7 +284,6 @@ export default function App() {
             </Marker>
           ))}
 
-          {/* Optional summary overlay at center when Done + data exists */}
           {mode === "done" && locations.length > 0 && <AllInfoOverlay locations={locations} />}
         </MapContainer>
       </div>
@@ -422,4 +394,3 @@ function LocationModal({ title, initial, onCancel, onSubmit, busy }) {
     </div>
   );
 }
-// End of src/App.jsx

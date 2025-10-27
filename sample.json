@@ -2,9 +2,9 @@
     {
         "id": "snhu-1",
         "lat": 43.03855,
-        "lng": -71.45120,
+        "lng": -71.4512,
         "title": "Library & Learning Commons",
-        "years": "Class of 2025",
+        "years": "Visit",
         "notes": "Quiet study spot.",
         "extra": {
             "displayName": "Library & Learning Commons, SNHU, Manchester, NH",
@@ -28,7 +28,7 @@
     {
         "id": "snhu-3",
         "lat": 43.03695,
-        "lng": -71.44790,
+        "lng": -71.4479,
         "title": "Residence Hall",
         "years": "2023–2024",
         "notes": "Met my best friend here.",
@@ -41,9 +41,9 @@
     {
         "id": "snhu-4",
         "lat": 43.03935,
-        "lng": -71.44860,
+        "lng": -71.4486,
         "title": "Dining",
-        "years": "Class of 2025",
+        "years": "Go-to lunch",
         "notes": "Great sandwiches.",
         "extra": {
             "displayName": "Dining, SNHU, Manchester, NH",
@@ -53,10 +53,10 @@
     },
     {
         "id": "snhu-5",
-        "lat": 43.03810,
-        "lng": -71.45260,
+        "lat": 43.0381,
+        "lng": -71.4526,
         "title": "Athletics Complex",
-        "years": "Class of 2025",
+        "years": "Game nights",
         "notes": "Packed on weekends.",
         "extra": {
             "displayName": "Athletics Complex, SNHU, Manchester, NH",

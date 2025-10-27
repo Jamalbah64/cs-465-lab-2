@@ -63,8 +63,3 @@ Actions per item:
 - **Local Storage**: The app auto-saves your locations between reloads.  
 - **Save/Load JSON**: Export/import your data for backup or sharing.
 
-### Troubleshooting
-
-- **Markers not visible / broken image**: Ensure Leaflet CSS link exists in `index.html` and the marker icon URLs are set in `App.jsx`.  
-- **Clicking map doesn’t open modal**: You are likely in **Done** mode; click **Show List** (optional) and add via edit or press **Reset** to resume collecting.  
-- **Load JSON fails**: File must be an array of objects with `id` (string), `lat` (number), and `lng` (number).
